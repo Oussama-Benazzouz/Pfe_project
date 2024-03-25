@@ -1,7 +1,15 @@
 import * as React from "react";
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+} from "react-native";
 
-function Signup() {
+function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
@@ -34,7 +42,7 @@ function Signup() {
           />
           <TextInput
             className="w-full px-5 py-4 rounded-lg border-2 border-transparent focus:border-text bg-blue-100"
-            placeholder="Confirm Password"
+            placeholder="Cofirm Password"
             secureTextEntry={true}
             onChangeText={(text) => setConfirmPassword(text)}
           />
@@ -47,15 +55,17 @@ function Signup() {
           </TouchableOpacity>
         </View>
         <View className="items-center mt-4">
-          <TouchableOpacity className="w-full bg-white py-2 rounded-lg">
-            <Text className="text-text text-center font-light text-sm">
-              Vous avez déjà un compte ?{" "}
+          <TouchableOpacity className="w-full bg-white py-3 rounded-lg">
+            <Text className="text-text text-center font-light text-xs">
+              Vous avez déjà un compte ?
             </Text>
           </TouchableOpacity>
         </View>
       </View>
       <View className="w-full items-center px-8">
-        <Text className="text-text font-bold pb-4 text-xs">Ou Continuez avec</Text>
+        <Text className="text-text font-bold pb-4 text-xs">
+          Ou Continuez avec
+        </Text>
         <TouchableOpacity className="w-full bg-white py-2 rounded-lg flex-row items-center justify-center">
           <Image
             source={require("../assets/images/google.png")}
@@ -70,4 +80,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default Login;

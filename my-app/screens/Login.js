@@ -44,8 +44,8 @@ function Login() {
           </TouchableOpacity>
         </View>
         <View className="items-center mt-4">
-          <TouchableOpacity className="w-full bg-white py-2 rounded-lg">
-            <Text className="text-text text-center font-light text-sm">
+          <TouchableOpacity className="w-full bg-white py-3 rounded-lg">
+            <Text className="text-text text-center font-light text-xs">
               Créer un compte
             </Text>
           </TouchableOpacity>
