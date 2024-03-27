@@ -1,6 +1,9 @@
 import * as React from "react";
 import { View, Text, TouchableOpacity, TextInput, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import OAuthButton from "../components/OAuthButton";
+import { auth } from "../firebase/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
   const navigation = useNavigation();
@@ -30,9 +33,18 @@ function Login() {
       setShowErrors(true);
       return;
     } else {
+      signIn();
       setErrors({});
       setShowErrors(false);
       console.log("Registered");
+    }
+  };
+
+  const signIn = async () => {
+    try {
+      const response = await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.log('Sign in error: ', error.message);
     }
   };
 
@@ -65,7 +77,9 @@ function Login() {
             onChangeText={(text) => setPassword(text)}
           />
           {showErrors && errors.password && (
-            <Text className="text-red-600 text-xs mb-2 ">{errors.password}</Text>
+            <Text className="text-red-600 text-xs mb-2 ">
+              {errors.password}
+            </Text>
           )}
         </View>
         <View className="items-end py-4">
@@ -100,15 +114,7 @@ function Login() {
         <Text className="text-text font-bold pb-4 text-xs">
           Ou Continuez avec
         </Text>
-        <TouchableOpacity className="w-full bg-white py-2 rounded-lg flex-row items-center justify-center">
-          <Image
-            source={require("../assets/images/google.png")}
-            className="w-8 h-8"
-          />
-          <Text className="text-text/60 text-center font-medium text-sm ml-7">
-            Continuer avec Google
-          </Text>
-        </TouchableOpacity>
+        <OAuthButton />
       </View>
     </View>
   );

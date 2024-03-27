@@ -1,8 +1,11 @@
 import * as React from "react";
-import { View, Text, TouchableOpacity, TextInput, Image } from "react-native";
+import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { useNavigation } from "@react-navigation/native";
-
+import { auth, firestore } from "../firebase/firebase";
+import { collection, addDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import OAuthButton from "../components/OAuthButton";
 
 function Signup() {
   const navigation = useNavigation();
@@ -11,11 +14,12 @@ function Signup() {
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [role, setRole] = React.useState("");
   const roles = [
-    { label: "Etudiant", value: "1" },
-    { label: "Propriétaire", value: "2" },
+    { label: "Etudiant", value: "Etudiant" },
+    { label: "Propriétaire", value: "Propriétaire" },
   ];
   const [showErrors, setShowErrors] = React.useState(false);
   const [errors, setErrors] = React.useState({});
+
   const getErrors = (email, password, confirmPassword) => {
     const errors = {};
     if (!email) {
@@ -46,9 +50,33 @@ function Signup() {
       setShowErrors(true);
       return;
     } else {
+      register();
       setErrors({});
       setShowErrors(false);
       console.log("Registered");
+    }
+  };
+
+  const register = async () => {
+    try {
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = response.user;
+      const userDoc = {
+        uid: user.uid,
+        email: user.email,
+        role: role,
+        phoneNumber: user.phoneNumber,
+        photoUrl: user.photoURL,
+        displayName: user.displayName,
+      };
+      await addDoc(collection(firestore, "users"), userDoc);
+    } catch (error) {
+      console.log("Sign up error: ", error.message);
+      return error;
     }
   };
 
@@ -114,8 +142,10 @@ function Signup() {
               setRole(item.value);
             }}
           />
-          {showErrors && errors.role && (
-            <Text className="text-red-600 text-xs mb-2 ">{errors.role}</Text>
+          {showErrors && (errors.role || userError) && (
+            <Text className="text-red-600 text-xs mb-2 ">
+              {errors.role || FIREBASE_ERRORS[userError?.message]}
+            </Text>
           )}
         </View>
         <View className="items-center mt-12">
@@ -143,15 +173,7 @@ function Signup() {
         <Text className="text-text font-bold pb-4 text-xs">
           Ou Continuez avec
         </Text>
-        <TouchableOpacity className="w-full bg-white py-2 rounded-lg flex-row items-center justify-center">
-          <Image
-            source={require("../assets/images/google.png")}
-            className="w-8 h-8"
-          />
-          <Text className="text-text/60 text-center font-medium text-sm ml-7">
-            Continuer avec Google
-          </Text>
-        </TouchableOpacity>
+        <OAuthButton role={role}/>
       </View>
     </View>
   );
