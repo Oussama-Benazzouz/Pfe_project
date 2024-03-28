@@ -9,6 +9,8 @@ import Signup from "./screens/Signup";
 import { auth, firestore } from "./firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import Profile from "./screens/DashBoard/Profile";
+import AddProperty from "./screens/DashBoard/AddProperty";
 
 const Stack = createNativeStackNavigator();
 
@@ -49,7 +51,10 @@ function App() {
             userRole === "Etudiant" ? (
               <Stack.Screen name="Home" component={HomeScreen} />
             ) : (
-              <Stack.Screen name="DashBoard" component={DashBoard} />
+              <>
+                <Stack.Screen name="DashBoard" component={DashBoard} />
+                <Stack.Screen name="AddProperty" component={AddProperty}/>
+              </>
             )
           ) : (
             <>
