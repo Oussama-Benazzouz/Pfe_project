@@ -41,15 +41,17 @@ function AddProperty({navigation}) {
     { label: "Machine à laver", value: "Machine à laver" },
   ];
 
-  const showToast = () => {
+  const showToast = (type, message) => {
     Toast.show({
-      type: "success",
+      type: type,
       position: "bottom",
-      text1: "Profile updated successfully",
+      text1: message,
       visibilityTime: 2000,
       autoHide: true,
     });
   };
+
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -72,6 +74,24 @@ function AddProperty({navigation}) {
 
   const handleSubmit = async () => {
     try {
+
+      const propertiesRef = collection(
+        firestore,
+        "Properties",
+        user.uid,
+        "PropertiesIds"
+      );
+      const querySnapshot = await getDocs(
+        query(propertiesRef, where("title", "==", title))
+      );
+
+      // If a property with the same title exists, show a toast message and abort
+      if (!querySnapshot.empty) {
+        showToast("error", "Property already exists");
+        return;
+      }
+
+
       const propertyData = {
         title,
         Description,
@@ -111,7 +131,7 @@ function AddProperty({navigation}) {
 
       // Update the property document with image URLs
       await updateDoc(newPropertyRef, { images: propertyData.images });
-      showToast();
+      showToast("success", "Property added successfully");
       navigation.navigate("DashBoard");
       console.log("Property added successfully");
     } catch (error) {

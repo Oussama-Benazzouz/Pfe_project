@@ -11,8 +11,14 @@ import {
   deleteObject,
 } from "firebase/storage";
 import Toast from "react-native-toast-message";
+import {
+  updateProfile,
+  updateEmail,
+  reauthenticateWithCredential,
+} from "firebase/auth";
 
-function PersonalInfo({navigation}) {
+
+function PersonalInfo({ navigation }) {
   const user = auth.currentUser;
   const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -20,6 +26,7 @@ function PersonalInfo({navigation}) {
   const [photoURL, setPhotoURL] = React.useState("");
   const [disabled, setDisabled] = React.useState(true);
   const [newPhotoURL, setNewPhotoURL] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchUserData = async () => {
@@ -38,6 +45,8 @@ function PersonalInfo({navigation}) {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -88,10 +97,15 @@ function PersonalInfo({navigation}) {
         const url = await getDownloadURL(storageRef);
 
         userDataToUpdate.photoURL = url;
+        updateProfile(user, {
+          photoURL: url,
+          displayName: fullName,
+        });
       }
-
+      if (email !== user.email) {
+        await updateEmail(user, email);
+      }
       await updateDoc(userDocRef, userDataToUpdate);
-
       console.log("Profile updated successfully");
       showToast();
       setPhotoURL(newPhotoURL);
@@ -106,65 +120,71 @@ function PersonalInfo({navigation}) {
       <Text className="text-2xl font-bold my-12">
         Informations Personnelles
       </Text>
-      <TouchableOpacity onPress={pickImage}>
-        {photoURL ? (
-          <Avatar.Image size={100} source={{ uri: newPhotoURL }} />
-        ) : (
-          <Avatar.Icon size={100} icon="account" />
-        )}
-      </TouchableOpacity>
-      <View className="w-full items-center mt-6">
-        <TextInput
-          label="Nom complet"
-          className="w-full bg-blue-100 my-2"
-          value={fullName}
-          onChangeText={(text) => setFullName(text)}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon={disabled ? "pencil" : "check-bold"}
-              onPress={() => setDisabled(!disabled)}
-            />
-          }
-          disabled={disabled}
-        />
-        <TextInput
-          label="Email"
-          className="w-full bg-blue-100 my-2"
-          value={email}
-          onChangeText={(text) => setEmail(text)}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon={disabled ? "pencil" : "check-bold"}
-              onPress={() => setDisabled(!disabled)}
-            />
-          }
-          disabled={disabled}
-        />
-        <TextInput
-          label="Numéro de téléphone"
-          className="w-full bg-blue-100 my-2"
-          keyboardType="phone-pad"
-          value={phoneNumber}
-          onChangeText={(text) => setPhoneNumber(text)}
-          mode="outlined"
-          right={
-            <TextInput.Icon
-              icon={disabled ? "pencil" : "check-bold"}
-              onPress={() => setDisabled(!disabled)}
-            />
-          }
-          disabled={disabled}
-        />
-        <TouchableOpacity
-          className="w-full px-5 py-5 rounded-lg bg-text mb-2 flex-row items-center justify-center mt-6"
-          onPress={handleUpdate}
-        >
-          <Text className="ml-2 text-white font-semibold">
-            Confirmer Modifications
-          </Text>
+      {!loading && (
+        <TouchableOpacity onPress={pickImage}>
+          {photoURL ? (
+            <Avatar.Image size={100} source={{ uri: newPhotoURL }} />
+          ) : (
+            <Avatar.Icon size={100} icon="account" />
+          )}
         </TouchableOpacity>
+      )}
+      <View className="w-full items-center mt-6">
+        {!loading && (
+          <>
+            <TextInput
+              label="Nom complet"
+              className="w-full bg-blue-100 my-2"
+              value={fullName}
+              onChangeText={(text) => setFullName(text)}
+              mode="outlined"
+              right={
+                <TextInput.Icon
+                  icon={disabled ? "pencil" : "check-bold"}
+                  onPress={() => setDisabled(!disabled)}
+                />
+              }
+              disabled={disabled}
+            />
+            <TextInput
+              label="Email"
+              className="w-full bg-blue-100 my-2"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              mode="outlined"
+              right={
+                <TextInput.Icon
+                  icon={disabled ? "pencil" : "check-bold"}
+                  onPress={() => setDisabled(!disabled)}
+                />
+              }
+              disabled={disabled}
+            />
+            <TextInput
+              label="Numéro de téléphone"
+              className="w-full bg-blue-100 my-2"
+              keyboardType="phone-pad"
+              value={phoneNumber}
+              onChangeText={(text) => setPhoneNumber(text)}
+              mode="outlined"
+              right={
+                <TextInput.Icon
+                  icon={disabled ? "pencil" : "check-bold"}
+                  onPress={() => setDisabled(!disabled)}
+                />
+              }
+              disabled={disabled}
+            />
+            <TouchableOpacity
+              className="w-full px-5 py-5 rounded-lg bg-text mb-2 flex-row items-center justify-center mt-6"
+              onPress={handleUpdate}
+            >
+              <Text className="ml-2 text-white font-semibold">
+                Confirmer Modifications
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </View>
   );

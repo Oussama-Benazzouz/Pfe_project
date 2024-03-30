@@ -10,12 +10,12 @@ import { Avatar, List, Divider } from "react-native-paper";
 import { auth, firestore } from "../../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-
 function Profile({ navigation }) {
   const user = auth.currentUser;
   const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [photoURL, setPhotoURL] = React.useState("");
+  const [loading, setLoading] = React.useState(true);
 
   const menuItems = [
     {
@@ -30,27 +30,46 @@ function Profile({ navigation }) {
     },
   ];
 
-  React.useEffect(() => {
-    const fetchUserData = async () => {
-      const userDocRef = doc(firestore, "users", user.uid);
-      try {
-        const userDocSnapshot = await getDoc(userDocRef);
-        if (userDocSnapshot.exists()) {
-          const userData = userDocSnapshot.data();
-          setFullName(userData.fullName);
-          setEmail(userData.email);
-          setPhotoURL(userData.photoURL);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  const fetchUserData = async () => {
+    const userDocRef = doc(firestore, "users", user.uid);
+    try {
+      const userDocSnapshot = await getDoc(userDocRef);
+      if (userDocSnapshot.exists()) {
+        const userData = userDocSnapshot.data();
+        setFullName(userData.fullName);
+        setEmail(userData.email);
+        setPhotoURL(userData.photoURL);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false); // Set loading to false regardless of success or failure
+    }
+  };
+
+  React.useEffect(() => {
     fetchUserData();
   }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchUserData();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const handleMenuItemPress = (item) => {
     navigation.navigate(item.navigateTo);
   };
+
+  if (loading) {
+    // Render a loading indicator or placeholder while data is being fetched
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 items-center justify-center">
