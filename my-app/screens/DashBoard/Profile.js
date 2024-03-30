@@ -46,7 +46,7 @@ function Profile({ navigation }) {
       }
     };
     fetchUserData();
-  });
+  }, []);
 
   const handleMenuItemPress = (item) => {
     navigation.navigate(item.navigateTo);

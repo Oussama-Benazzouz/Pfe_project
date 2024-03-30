@@ -17,8 +17,9 @@ import * as ImagePicker from "expo-image-picker";
 import { storage, firestore, auth } from "../../firebase/firebase";
 import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Toast from "react-native-toast-message";
 
-function AddProperty() {
+function AddProperty({navigation}) {
   const user = auth.currentUser;
   const [title, setTitle] = React.useState("");
   const [image, setImage] = React.useState([]);
@@ -39,6 +40,16 @@ function AddProperty() {
     { label: "Meublé", value: "Meublé" },
     { label: "Machine à laver", value: "Machine à laver" },
   ];
+
+  const showToast = () => {
+    Toast.show({
+      type: "success",
+      position: "bottom",
+      text1: "Profile updated successfully",
+      visibilityTime: 2000,
+      autoHide: true,
+    });
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -100,7 +111,8 @@ function AddProperty() {
 
       // Update the property document with image URLs
       await updateDoc(newPropertyRef, { images: propertyData.images });
-
+      showToast();
+      navigation.navigate("DashBoard");
       console.log("Property added successfully");
     } catch (error) {
       console.error("Error adding property: ", error);

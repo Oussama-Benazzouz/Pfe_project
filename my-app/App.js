@@ -12,6 +12,8 @@ import { doc, getDoc } from "firebase/firestore";
 import AddProperty from "./screens/DashBoard/AddProperty";
 import PersonalInfo from "./screens/DashBoard/Profile/PersonalInfo";
 import FAQ from "./screens/DashBoard/Profile/FAQ";
+import Toast from "react-native-toast-message";
+import Profile from "./screens/DashBoard/Profile";
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +59,7 @@ function App() {
                 <Stack.Screen name="AddProperty" component={AddProperty} />
                 <Stack.Screen name="PersonalInfo" component={PersonalInfo} />
                 <Stack.Screen name="FAQ" component={FAQ} />
+                <Stack.Screen name="Profile" component={Profile} />
               </>
             )
           ) : (
@@ -67,6 +70,7 @@ function App() {
             </>
           )}
         </Stack.Navigator>
+        <Toast />
       </NavigationContainer>
     </>
   );

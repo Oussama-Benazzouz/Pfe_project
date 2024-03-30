@@ -10,8 +10,9 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
+import Toast from "react-native-toast-message";
 
-function PersonalInfo() {
+function PersonalInfo({navigation}) {
   const user = auth.currentUser;
   const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -55,6 +56,16 @@ function PersonalInfo() {
     }
   };
 
+  const showToast = () => {
+    Toast.show({
+      type: "success",
+      position: "bottom",
+      text1: "Profile updated successfully",
+      visibilityTime: 2000,
+      autoHide: true,
+    });
+  };
+
   const handleUpdate = async () => {
     try {
       const userDocRef = doc(firestore, "users", user.uid);
@@ -82,7 +93,9 @@ function PersonalInfo() {
       await updateDoc(userDocRef, userDataToUpdate);
 
       console.log("Profile updated successfully");
+      showToast();
       setPhotoURL(newPhotoURL);
+      navigation.navigate("Profile");
     } catch (error) {
       console.error("Error updating profile:", error);
     }
