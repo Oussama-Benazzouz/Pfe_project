@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { useNavigation } from "@react-navigation/native";
 import { auth, firestore } from "../firebase/firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import OAuthButton from "../components/OAuthButton";
 
@@ -66,14 +66,14 @@ function Signup() {
       );
       const user = response.user;
       const userDoc = {
-        uid: user.uid,
         email: user.email,
         role: role,
         phoneNumber: user.phoneNumber,
         photoUrl: user.photoURL,
         displayName: user.displayName,
       };
-      await addDoc(collection(firestore, "users"), userDoc);
+      const userDocRef = doc(firestore, "users", user.uid);
+      await setDoc(userDocRef, userDoc);
     } catch (error) {
       console.log("Sign up error: ", error.message);
       return error;
@@ -173,7 +173,7 @@ function Signup() {
         <Text className="text-text font-bold pb-4 text-xs">
           Ou Continuez avec
         </Text>
-        <OAuthButton role={role}/>
+        <OAuthButton role={role} />
       </View>
     </View>
   );
