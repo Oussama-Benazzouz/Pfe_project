@@ -9,6 +9,8 @@ import {
 import { Avatar, List, Divider } from "react-native-paper";
 import { auth, firestore } from "../../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { deleteUser } from "firebase/auth";
+import { ActivityIndicator, MD2Colors } from "react-native-paper";
 
 function Profile({ navigation }) {
   const user = auth.currentUser;
@@ -62,11 +64,22 @@ function Profile({ navigation }) {
     navigation.navigate(item.navigateTo);
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      const userDocRef = doc(firestore, "users", user.uid);
+      await deleteDoc(userDocRef);
+
+      await deleteUser(user);
+    } catch (error) {
+      console.error("Error deleting user account:", error);
+    }
+  };
+
   if (loading) {
     // Render a loading indicator or placeholder while data is being fetched
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading...</Text>
+        <ActivityIndicator animating={true} color={MD2Colors.blue200} size={'large'}/>
       </View>
     );
   }
@@ -105,6 +118,14 @@ function Profile({ navigation }) {
           >
             <Text className="text-white text-center text-semibold py-1">
               Déconnexion
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-white p-3 rounded-lg mt-2 border-2 border-red-500"
+            onPress={() => handleDeleteAccount()}
+          >
+            <Text className="text-red-500 text-center text-bold py-1">
+              Supprimer le compte
             </Text>
           </TouchableOpacity>
         </View>

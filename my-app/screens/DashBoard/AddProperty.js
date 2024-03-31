@@ -208,7 +208,7 @@ function AddProperty({navigation}) {
                 >
                   <View className="flex-row items-center rounded-lg bg-white mt-2 mr-3 px-3 py-2">
                     <Text className="mr-1 text-xs">{item.label}</Text>
-                    <AntDesign color="black" name="delete" size={17} />
+                    <AntDesign color="red" name="delete" size={17} />
                   </View>
                 </TouchableOpacity>
               )}
