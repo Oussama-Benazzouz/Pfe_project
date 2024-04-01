@@ -78,7 +78,7 @@ function PersonalInfo({ navigation }) {
     try {
       const userDocRef = doc(firestore, "users", user.uid);
       const userDataToUpdate = {
-        fullName,
+        displayName : fullName,
         email,
         phoneNumber,
       };

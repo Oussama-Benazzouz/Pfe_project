@@ -2,10 +2,10 @@ import * as React from "react";
 import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import HomeScreen from "../screens/HomeScreen";
 import Profile from "../screens/DashBoard/Profile";
 import Explore from "../screens/Student/Explore";
 import Favoris from "../screens/Student/Favoris";
+import Home from "../screens/Home";
 
 const Tab = createBottomTabNavigator();
 
@@ -39,7 +39,7 @@ function DashBotNavigationEtu() {
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name={homeName} component={HomeScreen} />
+      <Tab.Screen name={homeName} component={Home} />
       <Tab.Screen name={exploreName} component={Explore} />
       <Tab.Screen name={favorisName} component={Favoris} />
       <Tab.Screen name={profileName} component={Profile} />
