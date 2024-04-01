@@ -6,7 +6,6 @@ function HomeScreen() {
   return (
     <View className="flex-1 items-center justify-center">
       <Text className="text-text/60">Home</Text>
-      <Button title="Se déconnecter" onPress={() => auth.signOut()} />
     </View>
   );
 }

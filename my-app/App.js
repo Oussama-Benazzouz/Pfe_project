@@ -16,6 +16,9 @@ import Toast from "react-native-toast-message";
 import Profile from "./screens/DashBoard/Profile";
 import EditProperty from "./screens/DashBoard/EditProperty";
 import HomeScreenPro from "./screens/DashBoard/HomeScreenPro";
+import EtuView from "./screens/EtuView";
+import Explore from "./screens/Student/Explore";
+import Favoris from "./screens/Student/Favoris";
 
 
 const Stack = createNativeStackNavigator();
@@ -55,7 +58,15 @@ function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {user ? (
             userRole === "Etudiant" ? (
-              <Stack.Screen name="Home" component={HomeScreen} />
+              <>
+                <Stack.Screen name="EtuView" component={EtuView} />
+                <Stack.Screen name="Explore" component={Explore} />
+                <Stack.Screen name="Favoris" component={Favoris} />
+                <Stack.Screen name="PersonalInfo" component={PersonalInfo} />
+                <Stack.Screen name="FAQ" component={FAQ} />
+                <Stack.Screen name="Profile" component={Profile} />
+                <Stack.Screen name="Home" component={HomeScreen} />
+              </>
             ) : (
               <>
                 <Stack.Screen name="DashBoard" component={DashBoard} />

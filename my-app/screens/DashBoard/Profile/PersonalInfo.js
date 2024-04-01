@@ -97,8 +97,8 @@ function PersonalInfo({ navigation }) {
 
         userDataToUpdate.photoURL = url;
         updateProfile(user, {
-          photoURL: url,
-          fullName: fullName,
+          photoUrl: url,
+          displayName: fullName,
         });
       }
       if (email !== user.email) {
