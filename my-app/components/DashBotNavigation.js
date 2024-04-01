@@ -2,7 +2,7 @@ import * as React from "react";
 import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
-import HomeScreen from "../screens/DashBoard/HomeScreen";
+import HomeScreenPro from "../screens/DashBoard/HomeScreenPro";
 import Profile from "../screens/DashBoard/Profile";
 
 const Tab = createBottomTabNavigator();
@@ -31,7 +31,7 @@ function DashBotNavigation() {
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name={homeName} component={HomeScreen} />
+      <Tab.Screen name={homeName} component={HomeScreenPro} />
       <Tab.Screen name={profileName} component={Profile} />
     </Tab.Navigator>
   );

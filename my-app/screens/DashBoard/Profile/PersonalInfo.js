@@ -14,7 +14,6 @@ import Toast from "react-native-toast-message";
 import {
   updateProfile,
   updateEmail,
-  reauthenticateWithCredential,
 } from "firebase/auth";
 
 
@@ -99,7 +98,7 @@ function PersonalInfo({ navigation }) {
         userDataToUpdate.photoURL = url;
         updateProfile(user, {
           photoURL: url,
-          displayName: fullName,
+          fullName: fullName,
         });
       }
       if (email !== user.email) {

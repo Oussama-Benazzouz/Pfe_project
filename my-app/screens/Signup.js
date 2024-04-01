@@ -69,8 +69,7 @@ function Signup() {
         email: user.email,
         role: role,
         phoneNumber: user.phoneNumber,
-        photoUrl: user.photoURL,
-        displayName: user.displayName,
+        photoURL: user.photoURL,
       };
       const userDocRef = doc(firestore, "users", user.uid);
       await setDoc(userDocRef, userDoc);

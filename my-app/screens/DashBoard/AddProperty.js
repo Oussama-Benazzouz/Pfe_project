@@ -15,11 +15,19 @@ import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as ImagePicker from "expo-image-picker";
 import { storage, firestore, auth } from "../../firebase/firebase";
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  updateDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore"; // Ajout de getDocs
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Toast from "react-native-toast-message";
 
-function AddProperty({navigation}) {
+function AddProperty({ navigation }) {
   const user = auth.currentUser;
   const [title, setTitle] = React.useState("");
   const [image, setImage] = React.useState([]);
@@ -51,8 +59,6 @@ function AddProperty({navigation}) {
     });
   };
 
-
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -74,7 +80,6 @@ function AddProperty({navigation}) {
 
   const handleSubmit = async () => {
     try {
-
       const propertiesRef = collection(
         firestore,
         "Properties",
@@ -90,7 +95,6 @@ function AddProperty({navigation}) {
         showToast("error", "Property already exists");
         return;
       }
-
 
       const propertyData = {
         title,
@@ -138,7 +142,6 @@ function AddProperty({navigation}) {
       console.error("Error adding property: ", error);
     }
   };
-
 
   return (
     <SafeAreaView className="flex-1 items-center  bg-background">

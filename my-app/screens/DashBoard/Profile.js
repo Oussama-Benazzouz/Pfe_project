@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Avatar, List, Divider } from "react-native-paper";
-import { auth, firestore } from "../../firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { auth, firestore, storage } from "../../firebase/firebase";
+import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
 import { ActivityIndicator, MD2Colors } from "react-native-paper";
+import { ref, deleteObject, getDownloadURL, listAll } from "firebase/storage";
 
 function Profile({ navigation }) {
   const user = auth.currentUser;
@@ -64,11 +65,30 @@ function Profile({ navigation }) {
     navigation.navigate(item.navigateTo);
   };
 
+  
+
   const handleDeleteAccount = async () => {
     try {
       const userDocRef = doc(firestore, "users", user.uid);
       await deleteDoc(userDocRef);
 
+      const userPropertiesDocRef = doc(firestore, "properties", user.uid);
+      await deleteDoc(userPropertiesDocRef);
+
+      // Supprimer le dossier contenant les photos de profil de l'utilisateur dans le stockage Firebase
+      const profilePicRef = ref(storage, `images/${user.uid}`);
+      try {
+        await deleteObject(profilePicRef);
+        console.log("Profile picture deleted successfully.");
+      } catch (error) {
+        if (error.code === "storage/object-not-found") {
+          console.log("Profile picture does not exist. No need to delete.");
+        } else {
+          throw error; // Rethrow the error if it's not related to the object not found
+        }
+      }
+
+      // Finally, delete the user
       await deleteUser(user);
     } catch (error) {
       console.error("Error deleting user account:", error);
@@ -79,7 +99,11 @@ function Profile({ navigation }) {
     // Render a loading indicator or placeholder while data is being fetched
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator animating={true} color={MD2Colors.blue200} size={'large'}/>
+        <ActivityIndicator
+          animating={true}
+          color={MD2Colors.blue200}
+          size={"large"}
+        />
       </View>
     );
   }

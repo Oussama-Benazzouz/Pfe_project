@@ -11,12 +11,13 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { firestore, auth, storage } from "../../firebase/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes } from "firebase/storage";
+import { doc, getDoc, getDocs, query, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
 import { MultiSelect, Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { deleteObject } from "firebase/storage";
+import Toast from "react-native-toast-message";
 
 const EditProperty = () => {
   const navigation = useNavigation();
@@ -37,6 +38,16 @@ const EditProperty = () => {
     { label: "Casablanca", value: "Casablanca" },
     { label: "Tanger", value: "Tanger" },
   ];
+
+  const showToast = (type, message) => {
+    Toast.show({
+      type: type,
+      position: "bottom",
+      text1: message,
+      visibilityTime: 2000,
+      autoHide: true,
+    });
+  };
 
   useEffect(() => {
     const getPropertyDetails = async () => {
@@ -77,6 +88,13 @@ const EditProperty = () => {
         `Properties/${auth.currentUser.uid}/PropertiesIds`,
         propertyId
       );
+
+      const querySnapshot = await getDocs(query(propertyRef, where("title", "==", title)));
+      if(!querySnapshot.empty){
+        showToast("error", "Ce titre existe déjà");
+        return;
+      }
+
       await updateDoc(propertyRef, {
         title,
         Description: description,
@@ -87,9 +105,11 @@ const EditProperty = () => {
         images: images,
       });
       console.log("Propriété mise à jour avec succès");
-      navigation.navigate("HomeScreen");
+      showToast("success", "Propriété mise à jour avec succès");
+      navigation.navigate("HomeScreenPro");
     } catch (error) {
       console.error("Erreur lors de la mise à jour de la propriété:", error);
+      showToast("error", "Erreur lors de la mise à jour de la propriété");
     }
   };
 
@@ -112,7 +132,6 @@ const EditProperty = () => {
     } catch (error) {
       console.error("Erreur lors de la suppression de l'image:", error);
     }
-
   };
 
   const handleAddImage = async () => {
@@ -147,7 +166,9 @@ const EditProperty = () => {
 
         await uploadBytes(storageRef, imageBlob);
 
-        setImages([...images, imageUri]);
+        const imageUrl = await getDownloadURL(storageRef);
+
+        setImages([...images, imageUrl]);
       }
     } catch (error) {
       console.error("Erreur lors de l'ajout de la photo:", error);
@@ -238,7 +259,10 @@ const EditProperty = () => {
             <Text className="font-bold text-xl">Images :</Text>
             {images.map((image, index) => (
               <View key={index} className="flex-row mb-2">
-                <Image source={{ uri: image }} style={styles.image} />
+                <Image
+                  source={{ uri: image }}
+                  style={{ width: 100, height: 100, marginRight: 10 }}
+                />
                 <TouchableOpacity onPress={() => handleRemoveImage(index)}>
                   <AntDesign name="delete" size={24} color="red" />
                 </TouchableOpacity>

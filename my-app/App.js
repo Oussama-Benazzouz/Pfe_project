@@ -15,6 +15,8 @@ import FAQ from "./screens/DashBoard/Profile/FAQ";
 import Toast from "react-native-toast-message";
 import Profile from "./screens/DashBoard/Profile";
 import EditProperty from "./screens/DashBoard/EditProperty";
+import HomeScreenPro from "./screens/DashBoard/HomeScreenPro";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +64,7 @@ function App() {
                 <Stack.Screen name="FAQ" component={FAQ} />
                 <Stack.Screen name="Profile" component={Profile} />
                 <Stack.Screen name="EditProperty" component={EditProperty} />
+                <Stack.Screen name="HomeScreenPro" component={HomeScreenPro} />
               </>
             )
           ) : (
