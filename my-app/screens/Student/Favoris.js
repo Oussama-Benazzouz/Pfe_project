@@ -218,13 +218,9 @@ function FavoritesScreen() {
                     style={{ marginLeft: 5 }}
                   />
                 </View>
-                <IconButton
-                  style={{ position: "absolute", bottom: 1, right: 1 }}
-                  icon={() => (
-                    <FontAwesome name="heart" size={22} color="black" />
-                  )}
-                  onPress={() => handleDeletefavoris(item.id)}
-                />
+                <TouchableOpacity onPress={() => handleDeletefavoris(item.id)}>
+                  <Ionicons name="heart" size={24} color="black" />
+                </TouchableOpacity>
               </View>
             </View>
           </View>
