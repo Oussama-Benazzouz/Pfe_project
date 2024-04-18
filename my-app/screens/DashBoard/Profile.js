@@ -8,7 +8,13 @@ import {
 } from "react-native";
 import { Avatar, List, Divider } from "react-native-paper";
 import { auth, firestore, storage } from "../../firebase/firebase";
-import { doc, getDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  deleteDoc,
+  getDocs,
+} from "firebase/firestore";
 import { deleteUser } from "firebase/auth";
 import { ActivityIndicator, MD2Colors } from "react-native-paper";
 import { ref, deleteObject, getDownloadURL, listAll } from "firebase/storage";
@@ -19,6 +25,7 @@ function Profile({ navigation }) {
   const [email, setEmail] = React.useState("");
   const [photoURL, setPhotoURL] = React.useState("");
   const [loading, setLoading] = React.useState(true);
+  const [properties, setProperties] = React.useState([]);
 
   const menuItems = [
     {
@@ -34,8 +41,8 @@ function Profile({ navigation }) {
   ];
 
   const fetchUserData = async () => {
-    const userDocRef = doc(firestore, "users", user.uid);
     try {
+      const userDocRef = doc(firestore, "users", user.uid);
       const userDocSnapshot = await getDoc(userDocRef);
       if (userDocSnapshot.exists()) {
         const userData = userDocSnapshot.data();
@@ -46,52 +53,120 @@ function Profile({ navigation }) {
     } catch (error) {
       console.error("Error fetching user data:", error);
     } finally {
-      setLoading(false); // Set loading to false regardless of success or failure
+      setLoading(false);
+    }
+  };
+
+  const fetchProperties = async () => {
+    try {
+      const userPropertiesRef = doc(
+        firestore,
+        "Properties",
+        auth.currentUser.uid
+      );
+      const propertiesIdsCollection = collection(
+        userPropertiesRef,
+        "PropertiesIds"
+      );
+      const propertiesSnapshot = await getDocs(propertiesIdsCollection);
+
+      const propertiesData = [];
+
+      for (const docRef of propertiesSnapshot.docs) {
+        const propertyRef = doc(
+          firestore,
+          "Properties",
+          auth.currentUser.uid,
+          "PropertiesIds",
+          docRef.id
+        );
+        const propertyDoc = await getDoc(propertyRef);
+        if (propertyDoc.exists()) {
+          const property = {
+            id: propertyDoc.id,
+            title: propertyDoc.data().title,
+            price: propertyDoc.data().Price,
+            images: propertyDoc.data().images,
+          };
+          propertiesData.push(property);
+        }
+      }
+
+      setProperties(propertiesData);
+    } catch (error) {
+      console.error("Error fetching properties:", error);
     }
   };
 
   React.useEffect(() => {
     fetchUserData();
+    fetchProperties();
   }, []);
-
-  React.useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      fetchUserData();
-    });
-    return unsubscribe;
-  }, [navigation]);
 
   const handleMenuItemPress = (item) => {
     navigation.navigate(item.navigateTo);
   };
 
-  
-
-  const handleDeleteAccount = async () => {
+  const handleDeleteProperty = async (propertyId, images) => {
     try {
-      const userDocRef = doc(firestore, "users", user.uid);
-      await deleteDoc(userDocRef);
+      const propertyRef = doc(
+        firestore,
+        `Properties/${auth.currentUser.uid}/PropertiesIds`,
+        propertyId
+      );
+      const deleteImagePromises = images.map(async (imageUrl) => {
+        const imageRef = ref(storage, imageUrl);
+        await deleteObject(imageRef);
+      });
+      await Promise.all(deleteImagePromises);
+      await deleteDoc(propertyRef);
 
-      const userPropertiesDocRef = doc(firestore, "properties", user.uid);
-      await deleteDoc(userPropertiesDocRef);
+      setProperties((prevProperties) =>
+        prevProperties.filter((property) => property.id !== propertyId)
+      );
 
-      // Supprimer le dossier contenant les photos de profil de l'utilisateur dans le stockage Firebase
-      const profilePicRef = ref(storage, `images/${user.uid}`);
-      try {
-        await deleteObject(profilePicRef);
-        console.log("Profile picture deleted successfully.");
-      } catch (error) {
-        if (error.code === "storage/object-not-found") {
-          console.log("Profile picture does not exist. No need to delete.");
-        } else {
-          throw error; // Rethrow the error if it's not related to the object not found
-        }
+      // Appel de fetchProperties pour actualiser les annonces après la suppression
+      fetchProperties();
+    } catch (error) {
+      console.error("Error deleting property:", error);
+    }
+  };
+
+  const handleDeleteAllProperties = async () => {
+    try {
+      for (const property of properties) {
+        await handleDeleteProperty(property.id, property.images);
       }
 
-      // Finally, delete the user
-      await deleteUser(user);
+      setProperties([]);
+
+      // Appel de fetchProperties pour actualiser les annonces après la suppression de toutes les annonces
+      fetchProperties();
     } catch (error) {
-      console.error("Error deleting user account:", error);
+      console.error("Erreur lors de la suppression des annonces :", error);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    try {
+      // Supprimer toutes les annonces
+      await handleDeleteAllProperties();
+
+      // Supprimer la photo de profil de l'utilisateur du stockage
+      const profilePicRef = ref(
+        storage,
+        `images/${auth.currentUser.uid}/profilePic/profilePic.jpg`
+      );
+      await deleteObject(profilePicRef);
+
+      // Supprimer le compte utilisateur
+      const userDocRef = doc(firestore, "users", auth.currentUser.uid);
+      await deleteDoc(userDocRef);
+
+      // Déconnecter l'utilisateur
+      await auth.signOut();
+    } catch (error) {
+      console.error("Error deleting user and properties:", error);
     }
   };
 
@@ -146,7 +221,7 @@ function Profile({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-white p-3 rounded-lg mt-2 border-2 border-red-500"
-            onPress={() => handleDeleteAccount()}
+            onPress={() => handleDeleteUser()}
           >
             <Text className="text-red-500 text-center text-bold py-1">
               Supprimer le compte

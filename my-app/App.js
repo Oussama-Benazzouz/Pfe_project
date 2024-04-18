@@ -16,11 +16,13 @@ import Profile from "./screens/DashBoard/Profile";
 import EditProperty from "./screens/DashBoard/EditProperty";
 import HomeScreenPro from "./screens/DashBoard/HomeScreenPro";
 import EtuView from "./screens/EtuView";
-import Explore from "./screens/Student/Explore";
 import Favoris from "./screens/Student/Favoris";
 import Home from "./screens/Home";
 import { ActivityIndicator, MD2Colors } from "react-native-paper";
 import { View } from "react-native";
+import PropertyDetails from "./screens/PropertyDetails";
+import Avis from "./screens/Avis";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -75,8 +77,10 @@ React.useEffect(() => {
             ) : userRole === "Etudiant" ? (
               <>
                 <Stack.Screen name="EtuView" component={EtuView} />
-                <Stack.Screen name="Explore" component={Explore} />
                 <Stack.Screen name="Favoris" component={Favoris} />
+                <Stack.Screen name="PropertyDetails" component={PropertyDetails} />
+                <Stack.Screen name="Home" component={Home} />
+                <Stack.Screen name="Avis" component={Avis} />
               </>
             ) : (
               <>
