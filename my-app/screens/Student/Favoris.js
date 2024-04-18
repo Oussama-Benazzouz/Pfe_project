@@ -229,7 +229,7 @@ function FavoritesScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ alignItems: "center", marginTop: 20 }}>
+        <View style={{ alignItems: "center", marginTop: 40 }}>
           <Text style={{ fontSize: 24, fontWeight: "bold" }}>Favoris</Text>
         </View>
         <FlatList
