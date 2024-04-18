@@ -142,13 +142,13 @@ function FavoritesScreen() {
                 borderTopLeftRadius: 5,
                 borderBottomLeftRadius: 5,
               }}
-              source={{ uri: property.images[0] }}
+              source={{ uri: item.images[0] }}
             />
             <View style={{ flex: 1, padding: 10 }}>
               <Text
                 style={{ fontSize: 16, fontWeight: "bold", marginBottom: 5 }}
               >
-                {property.title}
+                {item.title}
               </Text>
               <View
                 style={{
@@ -163,7 +163,7 @@ function FavoritesScreen() {
                   style={{ marginRight: 5 }}
                 />
                 <Text style={{ fontSize: 12, color: "#7D7F88" }}>
-                  {property.city}, {property.address}
+                  {item.city}, {item.address}
                 </Text>
               </View>
               <View
@@ -173,23 +173,25 @@ function FavoritesScreen() {
                   marginBottom: 5,
                 }}
               >
-                {property.amenities.map((amenity, index) => (
+                {item.amenities.map((amenity, index) => (
                   <Text
                     key={index}
                     style={{ fontSize: 12, color: "#7D7F88", marginRight: 5 }}
                   >
-                    {amenity}
+                    {index === item.amenities.length - 1
+                      ? amenity
+                      : amenity + ","}
                   </Text>
                 ))}
               </View>
               <Text style={{ fontSize: 14, color: "#7D7F88", marginBottom: 5 }}>
-                Type: {property.type}
+                Type: {item.type}
               </Text>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text
                   style={{ fontSize: 16, fontWeight: "bold", color: "#333" }}
                 >
-                  {property.price} Dh
+                  {item.price} Dh
                 </Text>
                 <Text style={{ fontSize: 12, color: "#7D7F88", marginLeft: 5 }}>
                   / Month
@@ -207,7 +209,7 @@ function FavoritesScreen() {
                   <Text
                     style={{ fontSize: 14, fontWeight: "bold", color: "#333" }}
                   >
-                    {property.averageRating.toFixed(1)}
+                    {averageRatings[item.id]?.toFixed(1)}
                   </Text>
                   <Ionicons
                     name="star"
@@ -216,9 +218,13 @@ function FavoritesScreen() {
                     style={{ marginLeft: 5 }}
                   />
                 </View>
-                <TouchableOpacity onPress={() => handleDeletefavoris(item.id)}>
-                  <Ionicons name="heart" size={24} color="black" />
-                </TouchableOpacity>
+                <IconButton
+                  style={{ position: "absolute", bottom: 1, right: 1 }}
+                  icon={() => (
+                    <FontAwesome name="heart" size={22} color="black" />
+                  )}
+                  onPress={() => handleDeletefavoris(item.id)}
+                />
               </View>
             </View>
           </View>
@@ -229,7 +235,7 @@ function FavoritesScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ alignItems: "center", marginTop: 40 }}>
+        <View style={{ alignItems: "center", marginTop: 40  }}>
           <Text style={{ fontSize: 24, fontWeight: "bold" }}>Favoris</Text>
         </View>
         <FlatList

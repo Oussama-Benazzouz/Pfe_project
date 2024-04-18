@@ -104,7 +104,7 @@ const PropertyItem = ({ property, onPress }) => {
           <View style={{ flexDirection: "row" }}>
             <Image
               style={{
-                width: '50%',
+                width: "50%",
                 height: "100%",
                 resizeMode: "cover",
                 borderTopLeftRadius: 5,
@@ -146,7 +146,9 @@ const PropertyItem = ({ property, onPress }) => {
                     key={index}
                     style={{ fontSize: 12, color: "#7D7F88", marginRight: 5 }}
                   >
-                    {amenity}
+                    {index === property.amenities.length - 1
+                      ? amenity
+                      : amenity + ","}
                   </Text>
                 ))}
               </View>
