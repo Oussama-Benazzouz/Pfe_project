@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Modal,
-  StyleSheet,
 } from "react-native";
 import {
   collection,
@@ -18,7 +17,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  deleteDoc,
 } from "firebase/firestore";
 import { firestore, auth } from "../firebase/firebase";
 import { useNavigation } from "@react-navigation/native";
@@ -342,8 +340,7 @@ function Home() {
           (!ratingFilters.threePlus ||
             (averageRating >= 3 && averageRating < 4)) &&
           (!ratingFilters.fourPlus ||
-            (averageRating >= 4 && averageRating <= 5)) &&
-          selectedTypes.includes(property.type)
+            (averageRating >= 4 && averageRating <= 5))
         );
       });
 
@@ -353,7 +350,8 @@ function Home() {
           parseFloat(property.price) <= priceRange[1] &&
           selectedAmenities.every((amenity) =>
             property.amenities.includes(amenity)
-          )
+          ) &&
+          selectedTypes.every((type) => property.type.includes(type))
       );
 
       setProperties(filteredProperties);
@@ -447,10 +445,21 @@ function Home() {
 
       {filteringActive && (
         <TouchableOpacity
-          style={styles.clearFilterButton}
+          style={{
+            backgroundColor: "black",
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            borderRadius: 5,
+            alignItems: "center",
+            position: "absolute",
+            bottom: 20,
+            right: 20,
+          }}
           onPress={clearFilter}
         >
-          <Text style={styles.clearFilterButtonText}>Clear Filter</Text>
+          <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
+            Clear Filter
+          </Text>
         </TouchableOpacity>
       )}
 
@@ -462,14 +471,26 @@ function Home() {
           setModalVisible(!modalVisible);
         }}
       >
-        <View style={styles.modalContainer}>
+        <View style={{ flex: 1, padding: 20 }}>
           <ScrollView>
             <View style={{ padding: 20 }}>
-              <Text style={{ fontSize: 20, marginBottom: 10 }}>
-                Advanced Filtering
-              </Text>
+              <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                <Text
+                  style={{ fontSize: 20, marginBottom: 20, fontWeight: "bold" }}
+                >
+                  Filters
+                </Text>
+              </View>
+              {/* Gray separator */}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderTopColor: "#ccc",
+                  marginVertical: 10,
+                }}
+              />
               <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontWeight: "bold" }}>Price (in DH)</Text>
+                <Text style={{ fontWeight: "bold" }}>Prix</Text>
                 <MultiSlider
                   values={[priceRange[0], priceRange[1]]}
                   sliderLength={280}
@@ -484,8 +505,18 @@ function Home() {
                   Min: {priceRange[0]} DH - Max: {priceRange[1]} DH
                 </Text>
               </View>
+              {/* Gray separator */}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderTopColor: "#ccc",
+                  marginVertical: 10,
+                }}
+              />
               <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontWeight: "bold" }}>Amenities</Text>
+                <Text style={{ fontWeight: "bold", marginBottom: 15 }}>
+                  Amenities
+                </Text>
                 {amenities.map((amenity, index) => (
                   <View
                     key={index}
@@ -496,16 +527,39 @@ function Home() {
                     }}
                   >
                     <CheckBox
-                      style={{ marginRight: 10 }}
+                      style={{
+                        marginRight: 10,
+                        tintColor: selectedAmenities.includes(amenity.value)
+                          ? "black"
+                          : undefined,
+                      }}
                       value={selectedAmenities.includes(amenity.value)}
                       onValueChange={() => toggleAmenity(amenity.value)}
                     />
-                    <Text>{amenity.label}</Text>
+                    <Text
+                      style={{
+                        color: selectedAmenities.includes(amenity.value)
+                          ? "black"
+                          : undefined,
+                      }}
+                    >
+                      {amenity.label}
+                    </Text>
                   </View>
                 ))}
               </View>
+              {/* Gray separator */}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderTopColor: "#ccc",
+                  marginVertical: 10,
+                }}
+              />
               <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontWeight: "bold" }}>Type</Text>
+                <Text style={{ fontWeight: "bold", marginBottom: 15 }}>
+                  Type
+                </Text>
                 {types.map((type, index) => (
                   <View
                     key={index}
@@ -516,92 +570,156 @@ function Home() {
                     }}
                   >
                     <CheckBox
-                      style={{ marginRight: 10 }}
+                      style={{
+                        marginRight: 10,
+                        tintColor: selectedTypes.includes(type.value)
+                          ? "black"
+                          : undefined,
+                      }}
                       value={selectedTypes.includes(type.value)}
                       onValueChange={() => toggleType(type.value)}
                     />
-                    <Text>{type.label}</Text>
+                    <Text
+                      style={{
+                        color: selectedTypes.includes(type.value)
+                          ? "black"
+                          : undefined,
+                      }}
+                    >
+                      {type.label}
+                    </Text>
                   </View>
                 ))}
               </View>
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{ fontWeight: "bold" }}>Rating</Text>
+              {/* Gray separator */}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderTopColor: "#ccc",
+                  marginVertical: 10,
+                }}
+              />
+              <View style={{ marginBottom: 10 }}>
+                <Text style={{ fontWeight: "bold", marginBottom: 15 }}>
+                  Rating
+                </Text>
                 <View
                   style={{
                     flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
+                    justifyContent: "space-between",
                   }}
                 >
-                  <CheckBox
-                    style={{ marginRight: 10 }}
-                    value={ratingFilters.zeroPlus}
-                    onValueChange={() => toggleRatingFilter("zeroPlus")}
-                  />
-                  <Text>0+</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <CheckBox
-                    style={{ marginRight: 10 }}
-                    value={ratingFilters.onePlus}
-                    onValueChange={() => toggleRatingFilter("onePlus")}
-                  />
-                  <Text>1+</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <CheckBox
-                    style={{ marginRight: 10 }}
-                    value={ratingFilters.twoPlus}
-                    onValueChange={() => toggleRatingFilter("twoPlus")}
-                  />
-                  <Text>2+</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <CheckBox
-                    style={{ marginRight: 10 }}
-                    value={ratingFilters.threePlus}
-                    onValueChange={() => toggleRatingFilter("threePlus")}
-                  />
-                  <Text>3+</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
-                  }}
-                >
-                  <CheckBox
-                    style={{ marginRight: 10 }}
-                    value={ratingFilters.fourPlus}
-                    onValueChange={() => toggleRatingFilter("fourPlus")}
-                  />
-                  <Text>4+</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <CheckBox
+                      style={{
+                        marginRight: 10,
+                        tintColor: ratingFilters.zeroPlus ? "black" : undefined,
+                      }}
+                      value={ratingFilters.zeroPlus}
+                      onValueChange={() => toggleRatingFilter("zeroPlus")}
+                      textProps={{ style: { fontSize: 16 } }} // Ajout de la propriété textProps pour personnaliser le style du texte
+                    />
+                    <Text
+                      style={{
+                        color: ratingFilters.zeroPlus ? "black" : undefined,
+                      }}
+                    >
+                      0+
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <CheckBox
+                      style={{
+                        marginRight: 10,
+                        tintColor: ratingFilters.onePlus ? "black" : undefined,
+                      }}
+                      value={ratingFilters.onePlus}
+                      onValueChange={() => toggleRatingFilter("onePlus")}
+                      textProps={{ style: { fontSize: 16 } }} // Ajout de la propriété textProps pour personnaliser le style du texte
+                    />
+                    <Text
+                      style={{
+                        color: ratingFilters.onePlus ? "black" : undefined,
+                      }}
+                    >
+                      1+
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <CheckBox
+                      style={{
+                        marginRight: 10,
+                        tintColor: ratingFilters.twoPlus ? "black" : undefined,
+                      }}
+                      value={ratingFilters.twoPlus}
+                      onValueChange={() => toggleRatingFilter("twoPlus")}
+                      textProps={{ style: { fontSize: 16 } }} // Ajout de la propriété textProps pour personnaliser le style du texte
+                    />
+                    <Text
+                      style={{
+                        color: ratingFilters.twoPlus ? "black" : undefined,
+                      }}
+                    >
+                      2+
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <CheckBox
+                      style={{
+                        marginRight: 10,
+                        tintColor: ratingFilters.threePlus
+                          ? "black"
+                          : undefined,
+                      }}
+                      value={ratingFilters.threePlus}
+                      onValueChange={() => toggleRatingFilter("threePlus")}
+                      textProps={{ style: { fontSize: 16 } }} // Ajout de la propriété textProps pour personnaliser le style du texte
+                    />
+                    <Text
+                      style={{
+                        color: ratingFilters.threePlus ? "black" : undefined,
+                      }}
+                    >
+                      3+
+                    </Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <CheckBox
+                      style={{
+                        marginRight: 10,
+                        tintColor: ratingFilters.fourPlus ? "black" : undefined,
+                      }}
+                      value={ratingFilters.fourPlus}
+                      onValueChange={() => toggleRatingFilter("fourPlus")}
+                      textProps={{ style: { fontSize: 16 } }} // Ajout de la propriété textProps pour personnaliser le style du texte
+                    />
+                    <Text
+                      style={{
+                        color: ratingFilters.fourPlus ? "black" : undefined,
+                      }}
+                    >
+                      4+
+                    </Text>
+                  </View>
                 </View>
               </View>
+
+              <View style={{ marginBottom: 20 }} />
               <TouchableOpacity
-                style={styles.filterButton}
+                style={{
+                  backgroundColor: "black",
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  borderRadius: 5,
+                  alignItems: "center",
+                }}
                 onPress={filterProperties}
               >
-                <Text style={styles.filterButtonText}>Apply Filter</Text>
+                <Text
+                  style={{ color: "white", fontSize: 16, fontWeight: "bold" }}
+                >
+                  Apply Filters
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -610,39 +728,5 @@ function Home() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  filterButton: {
-    backgroundColor: "blue",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  filterButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  clearFilterButton: {
-    backgroundColor: "red",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    alignItems: "center",
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-  },
-  clearFilterButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
 
 export default Home;
