@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { firestore, auth, storage } from "../../firebase/firebase";
-import { doc, getDoc, getDocs, query, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as ImagePicker from "expo-image-picker";
 import { MultiSelect, Dropdown } from "react-native-element-dropdown";
@@ -30,6 +30,7 @@ const EditProperty = () => {
   const [address, setAddress] = useState("");
   const [price, setPrice] = useState("");
   const [amenities, setAmenities] = useState([]);
+  const [type, setType] = useState("");
   const [images, setImages] = useState([]);
 
   const cities = [
@@ -67,6 +68,7 @@ const EditProperty = () => {
           setPrice(propertyData.Price);
           setAmenities(propertyData.Amenities);
           setImages(propertyData.images);
+          setType(propertyData.Type); // Mettre à jour le type
         } else {
           console.log("La propriété n'existe pas.");
         }
@@ -89,12 +91,6 @@ const EditProperty = () => {
         propertyId
       );
 
-      const querySnapshot = await getDocs(query(propertyRef, where("title", "==", title)));
-      if(!querySnapshot.empty){
-        showToast("error", "Ce titre existe déjà");
-        return;
-      }
-
       await updateDoc(propertyRef, {
         title,
         Description: description,
@@ -102,6 +98,7 @@ const EditProperty = () => {
         Address: address,
         Price: price,
         Amenities: amenities,
+        Type: type,
         images: images,
       });
       console.log("Propriété mise à jour avec succès");
@@ -225,6 +222,21 @@ const EditProperty = () => {
             value={city}
             onChange={(item) => {
               setCity(item.value);
+            }}
+          />
+          <Text className="font-bold text-xm mb-2">Type</Text>
+          <Dropdown
+            className="px-5 py-3 rounded-lg border-2 border-gray-300 bg-blue-100 mb-2"
+            data={[
+              { label: "Individuel", value: "Individuel" },
+              { label: "Collocation", value: "Collocation" },
+            ]}
+            labelField="label"
+            valueField="value"
+            placeholder="Select Type"
+            value={type}
+            onChange={(item) => {
+              setType(item.value);
             }}
           />
           <Text className="font-bold text-xm mb-2">Amenities</Text>

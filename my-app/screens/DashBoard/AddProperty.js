@@ -2,11 +2,8 @@ import * as React from "react";
 import {
   View,
   TextInput,
-  Button,
-  StyleSheet,
   TouchableOpacity,
   Text,
-  Picker,
   ScrollView,
   SafeAreaView,
   Image,
@@ -23,7 +20,7 @@ import {
   query,
   where,
   getDocs,
-} from "firebase/firestore"; // Ajout de getDocs
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Toast from "react-native-toast-message";
 
@@ -36,6 +33,7 @@ function AddProperty({ navigation }) {
   const [Address, setAddress] = React.useState("");
   const [Price, setPrice] = React.useState("");
   const [Amenities, setAmenities] = React.useState([]);
+  const [Type, setType] = React.useState(""); // Nouveau champ Type
   const cities = [
     { label: "Agadir", value: "Agadir" },
     { label: "Salé", value: "Salé" },
@@ -47,6 +45,10 @@ function AddProperty({ navigation }) {
     { label: "Wifi", value: "Wifi" },
     { label: "Meublé", value: "Meublé" },
     { label: "Machine à laver", value: "Machine à laver" },
+  ];
+  const types = [
+    { label: "Individuel", value: "Individuel" },
+    { label: "Collocation", value: "Collocation" },
   ];
 
   const showToast = (type, message) => {
@@ -103,6 +105,7 @@ function AddProperty({ navigation }) {
         Address,
         Price,
         Amenities,
+        Type, // Ajouter le champ Type
         images: [],
       };
 
@@ -144,7 +147,7 @@ function AddProperty({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 items-center  bg-background">
+    <SafeAreaView className="flex-1 items-center bg-background">
       <ScrollView className="w-full h-full">
         <View className="items-center">
           <Text className="text-2xl font-bold mt-12 mb-6">
@@ -161,7 +164,7 @@ function AddProperty({ navigation }) {
               placeholder="Description"
               value={Description}
               onChangeText={setDescription}
-              className="mx-5 px-5 py-4 rounded-lg border-2 border-transparent  focus:border-text bg-blue-100 mb-2"
+              className="mx-5 px-5 py-4 rounded-lg border-2 border-transparent focus:border-text bg-blue-100 mb-2"
               multiline={true}
             />
             <Dropdown
@@ -215,6 +218,17 @@ function AddProperty({ navigation }) {
                   </View>
                 </TouchableOpacity>
               )}
+            />
+            <Dropdown
+              className="mx-5 px-5 py-3 rounded-lg bg-blue-100 mb-2"
+              data={types}
+              labelField="label"
+              valueField="value"
+              placeholder="Select Type"
+              value={Type}
+              onChange={(item) => {
+                setType(item.value);
+              }}
             />
             <TouchableOpacity
               className="mx-5 px-5 py-5 rounded-lg bg-text mb-2 flex-row items-center justify-center mt-2"
